@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                 ),
                 onTap: () {
-                  showUserModal(context);
+                  showDependentModal(context); 
                 },
               ),
             ),

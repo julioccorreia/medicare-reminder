@@ -1,33 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_medicare_reminder/components/decoration_text_field.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
-import 'package:flutter_medicare_reminder/screens/home_screen.dart';
 import 'package:flutter_medicare_reminder/services/dependent_service.dart';
 import 'package:uuid/uuid.dart';
 
-showUserModal(BuildContext context, {UserModel? user}) {
+showDependentModal(BuildContext context, {UserModel? user}) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey[900],
     isDismissible: true,
     isScrollControlled: true,
     builder: (context) {
-      return UserModal(
+      return DependentModal(
         userModel: user,
       );
     },
   );
 }
 
-class UserModal extends StatefulWidget {
+class DependentModal extends StatefulWidget {
   final UserModel? userModel;
-  const UserModal({super.key, this.userModel});
+  const DependentModal({super.key, this.userModel});
 
   @override
-  State<UserModal> createState() => _MyWidgetState();
+  State<DependentModal> createState() => _MyWidgetState();
 }
 
-class _MyWidgetState extends State<UserModal> {
+class _MyWidgetState extends State<DependentModal> {
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();

@@ -54,7 +54,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
               color: Colors.white,
             ),
             onPressed: () {
-              showUserModal(context, user: widget.userModel);
+              showDependentModal(context, user: widget.userModel);
             },
           ),
         ],
