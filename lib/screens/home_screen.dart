@@ -1,27 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_medicare_reminder/_common/user_modal.dart';
+import 'package:flutter_medicare_reminder/_common/dependent_modal.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
 import 'package:flutter_medicare_reminder/screens/alarms_screen.dart';
 import 'package:flutter_medicare_reminder/services/authentication_service.dart';
+import 'package:flutter_medicare_reminder/services/dependent_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  final User user;
+  const HomeScreen({super.key, required this.user});
 
-  final List<UserModel> userList = [
-    UserModel(id: '1', fkUser: '123', name: 'Julio', password: 'senha123'),
-    UserModel(id: '2', fkUser: '123', name: 'Yuri', password: 'senha123'),
-    UserModel(id: '3', fkUser: '123', name: 'Cleyton', password: 'senha123')
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final DependentService service = DependentService();
 
   @override
   Widget build(BuildContext context) {
     initializeDateFormatting('pt_BR', null);
 
-    //Formatacao Data
     tzdata.initializeTimeZones();
     final location = tz.getLocation('America/Sao_Paulo');
     final now = tz.TZDateTime.now(location);
@@ -79,45 +82,73 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
             ),
-            Expanded(
-              child: ListView(
-                children: List.generate(userList.length, (index) {
-                  UserModel userModel = userList[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.only(left: 15),
-                      textColor: Colors.white,
-                      title: Text(userModel.name),
-                      leading: const Icon(
-                        Icons.person,
-                        color: Colors.white,
-                      ),
-                      trailing: const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.keyboard_arrow_right,
-                          color: Colors.white,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AlarmsScreen(
-                              userModel: userModel,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+            StreamBuilder(
+              stream: service.connectStreamDependent(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
                   );
-                }),
-              ),
+                } else {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!.docs.isNotEmpty) {
+                    List<UserModel> dependentList = [];
+
+                    for (var doc in snapshot.data!.docs) {
+                      dependentList.add(UserModel.fromMap(doc.data()));
+                    }
+
+                    return Expanded(
+                      child: ListView(
+                        children: List.generate(dependentList.length, (index) {
+                          UserModel userModel = dependentList[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[900],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.only(left: 15),
+                              textColor: Colors.white,
+                              title: Text(userModel.name),
+                              leading: const Icon(
+                                Icons.person,
+                                color: Colors.white,
+                              ),
+                              trailing: const Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(
+                                  Icons.keyboard_arrow_right,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AlarmsScreen(
+                                      userModel: userModel,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text(
+                        'Nenhum dependente cadastrado',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                }
+              },
             ),
           ],
         ),

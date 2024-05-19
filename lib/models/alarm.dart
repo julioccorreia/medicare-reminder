@@ -1,36 +1,32 @@
 class AlarmModel {
   String id;
-  String fkUser;
-  String fkUserDependent;
   String name;
-  String description;
-  DateTime date;
+  String? description;
+  int hour;
+  int minute;
 
   AlarmModel({
     required this.id,
-    required this.fkUser,
-    required this.fkUserDependent,
     required this.name,
-    required this.description,
-    required this.date,
+    this.description,
+    required this.hour,
+    required this.minute,
   });
 
   AlarmModel.fromMap(Map<String, dynamic> map)
       : id = map['id'],
-        fkUser = map['fkUser'],
-        fkUserDependent = map['fkUserDependent'],
         name = map['name'],
         description = map['description'],
-        date = map['date'];
+        hour = map['hour'],
+        minute = map['minute'];
 
   Map<String, dynamic> toMap() {
     return {
       "id": id,
-      "fkUser": fkUser,
-      "fkUserDependent": fkUserDependent,
       "name": name,
       "description": description,
-      "date": date,
+      "hour": hour,
+      "minute": minute,
     };
   }
 }

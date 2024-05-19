@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_medicare_reminder/_common/snackBar.dart';
 import 'package:flutter_medicare_reminder/components/decoration_text_field.dart';
 import 'package:flutter_medicare_reminder/services/authentication_service.dart';
@@ -15,6 +13,9 @@ class AuthenticationScreen extends StatefulWidget {
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
   bool register = false;
   bool userType = false; //False = Usuário principal | True = Usuário dependente
+  bool _obscureTextPass = true;
+  bool _obscureTextConfirmPass = true;
+
   final _formKey = GlobalKey<FormState>();
   String? _pass;
 
@@ -23,6 +24,16 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   final AuthenticationService _authService = AuthenticationService();
+
+  void _toggleObscureText(String field) {
+    setState(() {
+      if (field == 'password') {
+        _obscureTextPass = !_obscureTextPass;
+      } else if (field == 'confirmPassword') {
+        _obscureTextConfirmPass = !_obscureTextConfirmPass;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +90,18 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   ),
                   TextFormField(
                     controller: _passwordController,
-                    decoration: getAuthenticationInputDecoration('Senha'),
-                    obscureText: true,
+                    decoration:
+                        getAuthenticationInputDecoration('Senha').copyWith(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureTextPass
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () => _toggleObscureText('password'),
+                      ),
+                    ),
+                    obscureText: _obscureTextPass,
                     validator: (String? value) {
                       if (value == null || value.length < 5) {
                         return 'Senha inválida!';
@@ -96,8 +117,19 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                     visible: register,
                     child: TextFormField(
                       decoration:
-                          getAuthenticationInputDecoration('Confirmar senha'),
-                      obscureText: true,
+                          getAuthenticationInputDecoration('Confirmar senha')
+                              .copyWith(
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureTextPass
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () =>
+                              _toggleObscureText('confirmPassword'),
+                        ),
+                      ),
+                      obscureText: _obscureTextConfirmPass,
                       validator: (String? value) {
                         if (_pass != value) {
                           return 'Senha não é igual!';
