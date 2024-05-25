@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_medicare_reminder/_common/snackBar.dart';
 import 'package:flutter_medicare_reminder/components/decoration_text_field.dart';
+import 'package:flutter_medicare_reminder/screens/dependent_screen.dart';
 import 'package:flutter_medicare_reminder/services/authentication_service.dart';
+import 'package:flutter_medicare_reminder/services/dependent_service.dart';
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({super.key});
@@ -24,6 +26,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   final AuthenticationService _authService = AuthenticationService();
+  final DependentService _dependentService = DependentService();
 
   void _toggleObscureText(String field) {
     setState(() {
@@ -190,7 +193,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                       } else {}
                     },
                     child: Text(
-                      (!register) ? 'Enviar' : 'Cadastrar',
+                      (!register) ? 'Entrar' : 'Cadastrar',
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
@@ -216,7 +219,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     );
   }
 
-  buttonClick() {
+  void buttonClick() {
     String name = _userController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
@@ -231,7 +234,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
           } else {
             showSnackBar(
                 context: context,
-                text: "Cadastro efeturado com sucesso",
+                text: "Cadastro efetuado com sucesso",
                 isError: false);
           }
         },
@@ -245,7 +248,25 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             showSnackBar(context: context, text: error);
           }
         });
-      } else {}
+      } else {
+        loginDependent(email, password);
+      }
+    }
+  }
+
+  loginDependent(String email, String password) async {
+    Map<String, dynamic> loginValido =
+        await _dependentService.loginDependent(email, password);
+    if (!mounted) return;
+    if (loginValido['valid']) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DependentScreen(userModel: loginValido['user'], idParent: loginValido['idParent'],),
+        ),
+      );
+    } else {
+      print('loginInvalido');
     }
   }
 }

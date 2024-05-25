@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_medicare_reminder/components/decoration_text_field.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
-import 'package:flutter_medicare_reminder/services/dependent_service.dart';
+import 'package:flutter_medicare_reminder/services/user_service.dart';
 import 'package:uuid/uuid.dart';
 
 showDependentModal(BuildContext context, {UserModel? user}) {
@@ -34,7 +34,7 @@ class _MyWidgetState extends State<DependentModal> {
   bool isLoading = false;
   bool register = true;
 
-  final DependentService _dependentService = DependentService();
+  final UserService _userService = UserService();
 
   @override
   void initState() {
@@ -176,8 +176,8 @@ class _MyWidgetState extends State<DependentModal> {
                     },
                     child: const Text(
                       'Excluir dependente',
-                      style:
-                          TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -209,12 +209,33 @@ class _MyWidgetState extends State<DependentModal> {
       user.id = widget.userModel!.id;
     }
 
-    _dependentService.registerDependent(user).then((value) {
+    _userService.registerDependent(user).then((String? error) {
       setState(() {
         isLoading = false;
       });
-
-      Navigator.pop(context);
+      if (error != null) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Falha ao cadastrar'),
+              content: Text(error),
+              actions: <Widget>[
+                TextButton(
+                  child: const Center(
+                    child: Text('OK'),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        Navigator.pop(context);
+      }
     });
   }
 
@@ -234,7 +255,7 @@ class _MyWidgetState extends State<DependentModal> {
       password: password,
     );
 
-    _dependentService.deleteDependent(dependentId: user.id).then((value) {
+    _userService.deleteDependent(dependentId: user.id).then((value) {
       setState(() {
         isLoading = false;
       });

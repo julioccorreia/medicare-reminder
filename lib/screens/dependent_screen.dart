@@ -3,19 +3,30 @@ import 'package:flutter_medicare_reminder/_common/alarm_modal.dart';
 import 'package:flutter_medicare_reminder/_common/dependent_modal.dart';
 import 'package:flutter_medicare_reminder/models/alarm.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
-import 'package:flutter_medicare_reminder/services/user_service.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_medicare_reminder/services/dependent_service.dart';
 
-class AlarmsScreen extends StatefulWidget {
+class DependentScreen extends StatefulWidget {
   final UserModel userModel;
-  const AlarmsScreen({super.key, required this.userModel});
+  final String idParent;
+  const DependentScreen(
+      {super.key, required this.userModel, required this.idParent});
 
   @override
-  State<AlarmsScreen> createState() => _AlarmsScreenState();
+  State<DependentScreen> createState() => _DependentScreenState();
 }
 
-class _AlarmsScreenState extends State<AlarmsScreen> {
-  final UserService service = UserService();
+class _DependentScreenState extends State<DependentScreen> {
+  final DependentService service = DependentService();
+  late UserModel _userModel;
+  late String _idParent;
+
+  @override
+  void initState() {
+    super.initState();
+    _userModel = widget.userModel;
+    _idParent = widget.idParent;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +56,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
               color: Colors.white,
             ),
             onPressed: () {
-              showDependentModal(context, user: widget.userModel);
+              showDependentModal(context, user: _userModel);
             },
           ),
         ],
@@ -56,27 +67,9 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.only(left: 15),
-                textColor: Colors.white,
-                title: const Text('Novo Alarme'),
-                leading: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                onTap: () {
-                  showAlarmModal(context, widget.userModel.id);
-                },
-              ),
-            ),
             StreamBuilder(
-              stream: service.connectStreamAlarm(widget.userModel.id),
+              stream: service.connectStreamAlarm(
+                  _userModel.id, _idParent),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -120,17 +113,6 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                                 formattedTime,
                                 style: const TextStyle(fontSize: 16),
                               ),
-                              trailing: const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.keyboard_arrow_right,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              onTap: () {
-                                showAlarmModal(context, widget.userModel.id,
-                                    alarm: alarm);
-                              },
                             ),
                           );
                         }),

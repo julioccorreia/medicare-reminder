@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_medicare_reminder/components/decoration_text_field.dart';
 import 'package:flutter_medicare_reminder/models/alarm.dart';
-import 'package:flutter_medicare_reminder/services/dependent_service.dart';
+import 'package:flutter_medicare_reminder/services/user_service.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -38,7 +38,7 @@ class _MyWidgetState extends State<AlarmModal> {
   bool isLoading = false;
   bool register = true;
 
-  final DependentService _dependentService = DependentService();
+  final UserService _dependentService = UserService();
 
   @override
   void initState() {

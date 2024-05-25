@@ -4,7 +4,7 @@ import 'package:flutter_medicare_reminder/_common/dependent_modal.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
 import 'package:flutter_medicare_reminder/screens/alarms_screen.dart';
 import 'package:flutter_medicare_reminder/services/authentication_service.dart';
-import 'package:flutter_medicare_reminder/services/dependent_service.dart';
+import 'package:flutter_medicare_reminder/services/user_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final DependentService service = DependentService();
+  final UserService service = UserService();
 
   @override
   Widget build(BuildContext context) {

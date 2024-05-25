@@ -1,49 +1,37 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_medicare_reminder/models/alarm.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
 
 class DependentService {
-  String userId;
-  DependentService() : userId = FirebaseAuth.instance.currentUser!.uid;
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> registerDependent(UserModel userModel) async {
-    await _firestore
-        .collection(userId)
-        .doc(userModel.id)
-        .set(userModel.toMap());
-  }
+  Future<Map<String, dynamic>> loginDependent(
+      String email, String password) async {
+    Query<Map<String, dynamic>> dependentsCollection =
+        _firestore.collectionGroup('dependents');
 
-  Future<void> registerAlarm(String idDependent, AlarmModel alarmModel) async {
-    await _firestore
-        .collection(userId)
-        .doc(idDependent)
-        .collection('alarmes')
-        .doc(alarmModel.id)
-        .set(alarmModel.toMap());
-  }
+    QuerySnapshot querySnapshot = await dependentsCollection.get();
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> connectStreamDependent() {
-    return _firestore.collection(userId).orderBy('name').snapshots();
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      if (data['email'] == email && data['password'] == password) {
+        String idParent = doc.reference.parent.parent!.id;
+        UserModel userModel = UserModel(id: doc.id, name: data['name'], email: data['email'], password: data['password']);
+        return {'valid': true, 'user': userModel, 'idParent': idParent};
+      }
+    }
+
+    return {'valid': false};
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> connectStreamAlarm(
-      String idDependent) {
+      String idDependent, String idParent) {
     return _firestore
-        .collection(userId)
-      .doc(idDependent)
-      .collection('alarmes')
-      .orderBy('hour')
-      .snapshots();
-  }
-
-  Future<void> deleteDependent({required String dependentId}) {
-    return _firestore.collection(userId).doc(dependentId).delete();
-  }
-
-  Future<void> deleteAlarm({required String dependentId, required String alarmId}) {
-    return _firestore.collection(userId).doc(dependentId).collection('alarmes').doc(alarmId).delete();
+        .collection('users')
+        .doc(idParent)
+        .collection('dependents')
+        .doc(idDependent)
+        .collection('alarmes')
+        .orderBy('hour')
+        .snapshots();
   }
 }
