@@ -82,7 +82,8 @@ class _DependentScreenState extends State<DependentScreen> {
                     List<AlarmModel> alarmList = [];
 
                     for (var doc in snapshot.data!.docs) {
-                      alarmList.add(AlarmModel.fromMap(doc.data()));
+                      AlarmModel alarm = AlarmModel.fromMap(doc.data());
+                      alarmList.add(alarm);
                     }
 
                     return Expanded(
