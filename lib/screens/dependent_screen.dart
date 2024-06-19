@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_medicare_reminder/_common/alarm_modal.dart';
 import 'package:flutter_medicare_reminder/_common/dependent_modal.dart';
 import 'package:flutter_medicare_reminder/models/alarm.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
