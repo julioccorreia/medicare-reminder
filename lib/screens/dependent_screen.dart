@@ -3,8 +3,10 @@ import 'package:flutter_medicare_reminder/_common/alarm_modal.dart';
 import 'package:flutter_medicare_reminder/_common/dependent_modal.dart';
 import 'package:flutter_medicare_reminder/models/alarm.dart';
 import 'package:flutter_medicare_reminder/models/user.dart';
+import 'package:flutter_medicare_reminder/notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_medicare_reminder/services/dependent_service.dart';
+import 'package:time_listener/time_listener.dart';
 
 class DependentScreen extends StatefulWidget {
   final UserModel userModel;
@@ -20,12 +22,27 @@ class _DependentScreenState extends State<DependentScreen> {
   final DependentService service = DependentService();
   late UserModel _userModel;
   late String _idParent;
+  List<AlarmModel> alarms = [];
+  final TimeListener listener = TimeListener();
 
   @override
   void initState() {
     super.initState();
     _userModel = widget.userModel;
     _idParent = widget.idParent;
+
+    listener.listen((DateTime dt) {
+      if (alarms.isNotEmpty) {
+        for (var alarm in alarms) {
+          if (alarm.hour == dt.hour && alarm.minute == dt.minute) {
+            Notifications.showInstantNotification(
+              alarm.name,
+              alarm.description ?? 'Hora de cuidar disso!',
+            );
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -46,6 +63,7 @@ class _DependentScreenState extends State<DependentScreen> {
             color: Colors.white,
           ),
           onPressed: () {
+            listener.cancel();
             Navigator.pop(context);
           },
         ),
@@ -68,8 +86,7 @@ class _DependentScreenState extends State<DependentScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             StreamBuilder(
-              stream: service.connectStreamAlarm(
-                  _userModel.id, _idParent),
+              stream: service.connectStreamAlarm(_userModel.id, _idParent),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -84,6 +101,7 @@ class _DependentScreenState extends State<DependentScreen> {
                     for (var doc in snapshot.data!.docs) {
                       AlarmModel alarm = AlarmModel.fromMap(doc.data());
                       alarmList.add(alarm);
+                      alarms.add(alarm);
                     }
 
                     return Expanded(
@@ -129,6 +147,13 @@ class _DependentScreenState extends State<DependentScreen> {
                   }
                 }
               },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Notifications.showInstantNotification(
+                    'Dipirona', 'Tomar 40 gotas');
+              },
+              child: const Text('Exemplo Notificação'),
             ),
           ],
         ),

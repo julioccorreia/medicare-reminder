@@ -266,7 +266,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
         ),
       );
     } else {
-      print('loginInvalido');
     }
   }
 }
